@@ -195,12 +195,12 @@ public class Main {
                     if (!dr.found) {
                         //System.out.println("START: " + dr.startIndex);
                         //System.out.println("END: " + dr.endIndex);
-                        System.out.println("ADDITIVE: " + add);
-                        System.out.println("SHORTEST: " + shortest);
+                        //System.out.println("ADDITIVE: " + add);
+                        //System.out.println("SHORTEST: " + shortest);
                         String sub = equation.substring(add, add + shortest - 1);
-                        System.out.println("SUBSTR: " + equation.substring(add, add + shortest - 1));
+                        //System.out.println("SUBSTR: " + equation.substring(add, add + shortest - 1));
                         equation = replace(equation, eval(sub), add - 1, add + shortest - 1);
-                        System.out.println("NEW: " + equation);
+                        //System.out.println("NEW: " + equation);
                         add = 0;
                         shortest = 0;
                         notYet = true;
@@ -234,7 +234,7 @@ public class Main {
                         double a = SR.num1;
                         double b = SR.num2;
                         result = a / b;
-                        replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
+                        equation = replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
                         break;
                     }
                 }
@@ -244,9 +244,9 @@ public class Main {
                         double a = SR.num1;
                         double b = SR.num2;
                         result = a + b;
-                        System.out.println("RESULT: " + a + "+" + b + "=" + result);
+                        //System.out.println("RESULT: " + a + "+" + b + "=" + result);
                         equation = replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
-                        System.out.println("EQUATION (EVAL): " + equation);
+                        //System.out.println("EQUATION (EVAL): " + equation);
                         break;
                     } else if (equation.charAt(i) == '-') {
                         searchResult SR = findNums(equation, i);
@@ -266,7 +266,7 @@ public class Main {
         Scanner input = new Scanner(System.in);
         System.out.println("Enter an equation: ");
         //String equation = input.nextLine();
-        String equation = "(5*(2+5))+6";
+        String equation = "((5*(2+5))+6)/2";
         double i = Double.parseDouble(eval(equation));
         System.out.println("The result of the equation is: " + i);
         return;
