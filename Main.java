@@ -3,6 +3,7 @@ import java.lang.module.FindException;
 import java.util.*;
 
 public class Main {
+    private static depthResult dr;
     final int MAX_ITERATIONS = 256;
     static String breakChars = "()^*/+-";
 
@@ -79,6 +80,7 @@ public class Main {
         int endIndex = 0;
         int depth = 0;
         int additive = 0;
+        boolean found = false;
     };
 
     public static int temp = 0;
@@ -107,23 +109,25 @@ public class Main {
         boolean bracketFound = false;
         //while (!deepest) {
 
-            for (int i = index; i < equation.length(); ++i) {
-                if (equation.charAt(i) == '(') {
-                    ++shift;
-                    bracketFound = true;
-                }
-                if (equation.charAt(i) == ')') {
-                    --shift;
-                    if (shift == 0) {
-                        dr.endIndex = i;
-                        //equation = equation.substring(dr.startIndex+1,dr.endIndex);
-                        ++dr.depth;
-                    }
-                    bracketFound = true;
-                }
+        for (int i = index; i < equation.length(); ++i) {
+            if (equation.charAt(i) == '(') {
+                ++shift;
+                bracketFound = true;
             }
+            if (equation.charAt(i) == ')') {
+                --shift;
+                if (shift == 0) {
+                    dr.endIndex = i;
+                    //equation = equation.substring(dr.startIndex+1,dr.endIndex);
+                    ++dr.depth;
+                }
+                bracketFound = true;
+            }
+        }
 
-       //}
+        if (bracketFound) {
+            dr.found = true;
+        }
 
         //System.out.println("(BR_DEPTH) EQUATION: " + equation);
         //System.out.println("SUBSTR: " + equation.substring(dr.startIndex+1,dr.endIndex-1));
@@ -166,9 +170,8 @@ public class Main {
     }
 
     static String eval(String equation) {
-
         double result = 0;
-        String breakChars2 = "()^*/+-";
+        String breakChars2 = "^*/+-";
         while (true) {
             System.out.println("EQUATION (EVAL): " + equation);
 
@@ -183,63 +186,76 @@ public class Main {
             if (!found) {
                 break;
             }
+            boolean notYet = false;
             for (int i = 0; i < equation.length(); ++i) {
                 if (equation.charAt(i) == '(') {
                     int depth1;
                     int depth2;
                     depthResult dr = findBracketDepth(equation);
-                    String sub = equation.substring(add, add + shortest - 1);
-                    System.out.println("SUBSTR: " + equation.substring(add, add + shortest - 1));
-                    equation = replace(equation, eval(sub),add-1,add + shortest - 1);
-                    System.out.println("NEW: " + equation);
+                    if (!dr.found) {
+                        //System.out.println("START: " + dr.startIndex);
+                        //System.out.println("END: " + dr.endIndex);
+                        System.out.println("ADDITIVE: " + add);
+                        System.out.println("SHORTEST: " + shortest);
+                        String sub = equation.substring(add, add + shortest - 1);
+                        System.out.println("SUBSTR: " + equation.substring(add, add + shortest - 1));
+                        equation = replace(equation, eval(sub), add - 1, add + shortest - 1);
+                        System.out.println("NEW: " + equation);
+                        add = 0;
+                        shortest = 0;
+                        notYet = true;
+                    } else {
+
+                    }
                 }
             }
-            for (int i = 0; i < equation.length(); ++i) {
-                if (equation.charAt(i) == '^') {
-                    searchResult SR = findNums(equation, i);
-                    double a = SR.num1;
-                    double b = SR.num2;
-                    result = Math.pow(a, b);
-                    equation = replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
-                    break;
+            if (!notYet) {
+                for (int i = 0; i < equation.length(); ++i) {
+                    if (equation.charAt(i) == '^') {
+                        searchResult SR = findNums(equation, i);
+                        double a = SR.num1;
+                        double b = SR.num2;
+                        result = Math.pow(a, b);
+                        equation = replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
+                        break;
+                    }
                 }
-            }
-            for (int i = 0; i < equation.length(); ++i) {
-                if (equation.charAt(i) == '*') {
-                    searchResult SR = findNums(equation, i);
-                    double a = SR.num1;
-                    double b = SR.num2;
-                    result = a * b;
-                    equation = replace(equation,Double.toString(result),SR.indexFirst, SR.indexLast-1);
-                    break;
+                for (int i = 0; i < equation.length(); ++i) {
+                    if (equation.charAt(i) == '*') {
+                        searchResult SR = findNums(equation, i);
+                        double a = SR.num1;
+                        double b = SR.num2;
+                        result = a * b;
+                        equation = replace(equation,Double.toString(result),SR.indexFirst, SR.indexLast-1);
+                        break;
+                    }
+                    else if (equation.charAt(i) == '/') {
+                        searchResult SR = findNums(equation, i);
+                        double a = SR.num1;
+                        double b = SR.num2;
+                        result = a / b;
+                        replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
+                        break;
+                    }
                 }
-                else if (equation.charAt(i) == '/') {
-                    searchResult SR = findNums(equation, i);
-                    double a = SR.num1;
-                    double b = SR.num2;
-                    result = a / b;
-                    replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
-                    break;
-                }
-            }
-            for (int i = 0; i < equation.length(); ++i) {
-                if (equation.charAt(i) == '+') {
-                    searchResult SR = findNums(equation, i);
-                    double a = SR.num1;
-                    double b = SR.num2;
-                    result = a + b;
-                    System.out.println("RESULT: " + a + "+" + b + "=" + result);
-                    equation = replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
-                    System.out.println("EQUATION (EVAL): " + equation);
-                    break;
-                }
-                else if (equation.charAt(i) == '-') {
-                    searchResult SR = findNums(equation, i);
-                    double a = SR.num1;
-                    double b = SR.num2;
-                    result = a - b;
-                    equation = replace(equation,Double.toString(result),SR.indexFirst, SR.indexLast-1);
-                    break;
+                for (int i = 0; i < equation.length(); ++i) {
+                    if (equation.charAt(i) == '+') {
+                        searchResult SR = findNums(equation, i);
+                        double a = SR.num1;
+                        double b = SR.num2;
+                        result = a + b;
+                        System.out.println("RESULT: " + a + "+" + b + "=" + result);
+                        equation = replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
+                        System.out.println("EQUATION (EVAL): " + equation);
+                        break;
+                    } else if (equation.charAt(i) == '-') {
+                        searchResult SR = findNums(equation, i);
+                        double a = SR.num1;
+                        double b = SR.num2;
+                        result = a - b;
+                        equation = replace(equation, Double.toString(result), SR.indexFirst, SR.indexLast - 1);
+                        break;
+                    }
                 }
             }
         }
@@ -250,7 +266,7 @@ public class Main {
         Scanner input = new Scanner(System.in);
         System.out.println("Enter an equation: ");
         //String equation = input.nextLine();
-        String equation = "5*(2+5)+6";
+        String equation = "(5*(2+5))+6";
         double i = Double.parseDouble(eval(equation));
         System.out.println("The result of the equation is: " + i);
         return;
