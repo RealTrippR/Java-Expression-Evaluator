@@ -264,9 +264,9 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        System.out.println("Enter an equation: ");
-        //String equation = input.nextLine();
-        String equation = "((5*(2+5))+6)/2";
+        System.out.println("Enter an equation: \ni.e. ((5*(2+5))+6)/2");
+        String equation = input.nextLine();
+       // String equation = "((5*(2+5))+6)/2";
         double i = Double.parseDouble(eval(equation));
         System.out.println("The result of the equation is: " + i);
         return;
